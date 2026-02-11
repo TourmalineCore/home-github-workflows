@@ -54,4 +54,4 @@ jobs:
             "path_to_values": "${{ inputs.path-to-values }}",
             "path_to_helmfile": "${{ inputs.path-to-helmfile }}",
             "service_name": "${{ github.event.repository.name }}"
-            }}' 
+            }}'
