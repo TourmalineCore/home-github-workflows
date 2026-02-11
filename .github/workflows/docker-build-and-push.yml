@@ -23,6 +23,14 @@ on:
       build-args:
         required: false
         type: string
+      # Context is used to define the working directory folder
+      context:
+        required: false
+        type: string
+      # Image-name is used to define the name of image in situation when you need to name it differ from project name
+      image-name:
+        required: false
+        type: string
 
 jobs:
   build_amd64:
@@ -32,6 +40,9 @@ jobs:
       contents: read
       attestations: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Prepare
         run: |
           platform=linux/amd64
@@ -46,8 +57,10 @@ jobs:
 
       - name: Get lowercase repository
         id: get-lowercase-repository
+        # REPOSITORY_CUSTOM is needed to process with situations when repository name can't be used as image name
         run: |
-          REPOSITORY_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          REPOSITORY_CUSTOM=${{ inputs.image-name && format('{0}/{1}', github.repository_owner, inputs.image-name) || github.repository }}
+          REPOSITORY_LOWER=$(echo "$REPOSITORY_CUSTOM" | tr '[:upper:]' '[:lower:]')
           echo "REPOSITORY_LOWER=$REPOSITORY_LOWER" >> $GITHUB_OUTPUT
 
       - name: Docker meta
@@ -63,6 +76,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
+          context: ${{ inputs.context && inputs.context || '.' }}
           platforms: linux/amd64
           labels: ${{ steps.meta.outputs.labels }}
           tags:  ghcr.io/${{ steps.get-lowercase-repository.outputs.REPOSITORY_LOWER }}
@@ -90,6 +104,9 @@ jobs:
       contents: read
       attestations: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Prepare
         run: |
           platform=linux/arm64
@@ -104,15 +121,17 @@ jobs:
 
       - name: Get lowercase repository
         id: get-lowercase-repository
+        # REPOSITORY_CUSTOM is needed to process with situations when repository name can't be used as image name
         run: |
-          REPOSITORY_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          REPOSITORY_CUSTOM=${{ inputs.image-name && format('{0}/{1}', github.repository_owner, inputs.image-name) || github.repository }}
+          REPOSITORY_LOWER=$(echo "$REPOSITORY_CUSTOM" | tr '[:upper:]' '[:lower:]')
           echo "REPOSITORY_LOWER=$REPOSITORY_LOWER" >> $GITHUB_OUTPUT
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images:  ghcr.io/${{ steps.get-lowercase-repository.outputs.REPOSITORY_LOWER }}
+          images: ghcr.io/${{ steps.get-lowercase-repository.outputs.REPOSITORY_LOWER }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -121,6 +140,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
+          context: ${{ inputs.context && inputs.context || '.' }}
           platforms: linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
           tags:  ghcr.io/${{ steps.get-lowercase-repository.outputs.REPOSITORY_LOWER }}
@@ -166,8 +186,10 @@ jobs:
 
       - name: Get lowercase repository
         id: get-lowercase-repository
+        # REPOSITORY_CUSTOM is needed to process with situations when repository name can't be used as image name
         run: |
-          REPOSITORY_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          REPOSITORY_CUSTOM=${{ inputs.image-name && format('{0}/{1}', github.repository_owner, inputs.image-name) || github.repository }}
+          REPOSITORY_LOWER=$(echo "$REPOSITORY_CUSTOM" | tr '[:upper:]' '[:lower:]')
           echo "REPOSITORY_LOWER=$REPOSITORY_LOWER" >> $GITHUB_OUTPUT
 
       - name: Extract metadata (tags, labels) for Docker
