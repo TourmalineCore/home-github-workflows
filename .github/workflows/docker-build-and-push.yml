@@ -57,7 +57,7 @@ jobs:
 
       - name: Get lowercase repository
         id: get-lowercase-repository
-        # REPOSITORY_CUSTOM is needed to process with situations when repository name can't be image name
+        # REPOSITORY_CUSTOM is needed to process with situations when repository name can't be used as image name
         run: |
           REPOSITORY_CUSTOM=${{ inputs.image-name && format('{0}/{1}', github.repository_owner, inputs.image-name) || github.repository }}
           REPOSITORY_LOWER=$(echo "$REPOSITORY_CUSTOM" | tr '[:upper:]' '[:lower:]')
@@ -121,8 +121,8 @@ jobs:
 
       - name: Get lowercase repository
         id: get-lowercase-repository
+        # REPOSITORY_CUSTOM is needed to process with situations when repository name can't be used as image name
         run: |
-          # REPOSITORY_CUSTOM is used to proceed with situations when image name != repo name
           REPOSITORY_CUSTOM=${{ inputs.image-name && format('{0}/{1}', github.repository_owner, inputs.image-name) || github.repository }}
           REPOSITORY_LOWER=$(echo "$REPOSITORY_CUSTOM" | tr '[:upper:]' '[:lower:]')
           echo "REPOSITORY_LOWER=$REPOSITORY_LOWER" >> $GITHUB_OUTPUT
@@ -186,6 +186,7 @@ jobs:
 
       - name: Get lowercase repository
         id: get-lowercase-repository
+        # REPOSITORY_CUSTOM is needed to process with situations when repository name can't be used as image name
         run: |
           REPOSITORY_CUSTOM=${{ inputs.image-name && format('{0}/{1}', github.repository_owner, inputs.image-name) || github.repository }}
           REPOSITORY_LOWER=$(echo "$REPOSITORY_CUSTOM" | tr '[:upper:]' '[:lower:]')
